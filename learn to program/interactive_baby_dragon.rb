@@ -1,0 +1,143 @@
+class Dragon
+  def initialize name
+    @name = name
+    @asleep = false
+    @stuff_in_belly = 10 #he's full
+    @stuff_in_intestine = 0 #he doesn't need to poop
+    puts "#{@name} is born!"
+  end
+
+  def feed
+    puts "You feed #{@name}."
+    @stuff_in_belly = 10
+    passage_of_time
+  end
+
+  def walk
+    puts "You walk #{@name}."
+    @stuff_in_intestine = 0
+    passage_of_time
+  end
+
+  def put_to_bed
+    puts "You put #{@name} to bed."
+    @asleep = true
+    3.times do
+      if @asleep
+        passage_of_time
+      end
+      if @asleep
+        puts "#{@name} snores, filling the room with smoke."
+      end
+    end
+
+    if @asleep
+      @asleep = false
+      puts "#{@name} wakes up slowly."
+    end
+  end
+
+  def toss
+    puts "You toss #{@name} up into the air."
+    puts "He giggles, which singes your eyebrows."
+    passage_of_time
+  end
+
+  def rock
+    puts "You rock #{@name} gently."
+    @asleep = true
+    puts "He briefly dozes off..."
+    passage_of_time
+    if @asleep
+      @asleep = false
+      puts '... but wakes when you stop!'
+    end
+  end
+
+  def list_of_commands
+    commands = ['feed', 'rock', 'toss', 'walk', 'put_to_bed']
+    puts 'Here are some things you can do with your baby dragon!'
+    commands.each {|x| puts x}
+    next_command
+  end
+
+  def next_command
+    puts "What do you want to do next? (hint: type /help for list of commands)"
+    input = gets.chomp
+    if input == '/help'
+      list_of_commands
+    elsif
+        case input
+          when 'feed'
+            feed
+            next_command
+          when 'rock'
+            rock
+            next_command
+          when 'toss'
+            toss
+            next_command
+          when 'walk'
+            walk
+            next_command
+          when 'put_to_bed'
+            put_to_bed
+            next_command
+          else
+            puts "That's not a valid command! Please type '/help' for a list of commands "
+            next_command
+        end
+    end
+  end
+
+
+
+
+  private
+  def hungry?
+    @stuff_in_belly <= 2
+  end
+
+  def poopy?
+    @stuff_in_intestine >= 8
+  end
+
+  def passage_of_time
+    if @stuff_in_belly > 0
+      @stuff_in_belly = @stuff_in_belly - 1
+      @stuff_in_intestine = @stuff_in_intestine + 1
+    else
+      if @asleep
+        @asleep = false
+        puts 'He wakes up suddenly!'
+      end
+      puts "#{@name} is starving! In desperation, he ate YOU!"
+      exit
+    end
+    if @stuff_in_intestine >= 10
+      @stuff_in_intestine = 0
+      puts "Whoops! #{@name} had an accident..."
+  end
+
+  if hungry?
+    if @asleep
+      @asleep = false
+      puts 'He wakes up suddenly!'
+    end
+    puts "#{@name}'s stomach grumbles..."
+  end
+
+  if poopy?
+    if @asleep
+      @asleep = false
+      puts 'He wakes up suddenly!'
+    end
+    puts "#{@name} does the potty dance..."
+  end
+end
+end
+
+puts 'Welcome! What do you want to name your dragon?'
+name = gets.chomp
+pet = Dragon.new name
+pet.next_command
