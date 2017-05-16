@@ -1,0 +1,11 @@
+welcome: 'Hello! Welcome to the mortgage calculator! Enter your name:'
+amount_input: 'Please enter the loan amount:'
+amount_error: 'Amount need to be a valid number, and can not be 0 or less. Please try again:'
+apr_input: 'Please enter the APR:'
+apr_error: 'APR needs to be a valid number, and can not be 0.0 or less. Please try again:'
+duration_input: 'Please enter the loan duration in years:'
+duration_error: 'Duration needs to be a valid number, and can not be 0 years or less. Please try again:'
+could_not_calculate: 'Your monthly payment could not be calculated'
+result: "Your monthly payment is $"
+calculate_again?: 'Do you want to make another loan calculation? (Y to confirm)'
+goodbye: 'Thanks for using calculator. Good bye!'

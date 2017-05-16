@@ -1,31 +1,7 @@
-# You'll need three pieces of information:
 
-# the loan amount
-# the Annual Percentage Rate (APR)
-# the loan duration
-# From the above, you'll need to calculate the following two things:
+require 'yaml'
 
-# monthly interest rate
-# loan duration in months
-
-# Translated to Ruby, this is what the formula looks like:
-
-# m = p * (j / (1 - (1 + j)**(-n)))
-# m = monthly payment
-# p = loan amount
-# j = monthly interest rate
-# n = loan duration in months
-
-# Informal pseudoCode:
-# Get input from user on the following:
-# 1) loan amount (check if valid integers)
-# 2) APR (check if valid integer)
-# 3) APR will need to be percentage, so will need to divide APR variable by 100)
-# 3) loan duration in months (check if valid integer and can not be negative or 0)
-
-# Next, run the formula to figure out what the monthly payment should be
-
-require 'pry'
+MESSAGES = YAML.load_file('loan_calculator_messages.yml')
 
 def prompt(input)
   puts("=> #{input}")
@@ -35,64 +11,72 @@ def valid_integer?(num)
   num.to_i.to_s == num
 end
 
-prompt('Hello! Welcome to the mortgage calculator! Enter your name:')
+def valid_float?(num)
+  num.to_f.to_s == num
+end
+
+prompt(MESSAGES['welcome'])
 name = gets.chomp
 
-loop do 
+loop do
   prompt("Hello, #{name}!")
 
   amount = nil
 
   loop do
-    prompt('Please enter the loan amount: ')
+    prompt(MESSAGES['amount_input'])
     amount = gets.chomp
-    if valid_integer?(amount) && amount.to_i > 0
+    if valid_float?(amount) || valid_integer?(amount) && amount.to_f > 0.0
       amount = amount.to_i
       break
-    elsif amount.to_i <= 0 
-      prompt('Amount need to be a valid number, and can not be 0 or less. Please try again: ')
+    elsif amount.to_i <= 0
+      prompt(MESSAGES['amount_error'])
     end
   end
 
   apr = nil
   monthly_interest_rate = nil
   loop do
-    prompt('Please enter the APR: ')
+    prompt(MESSAGES['apr_input'])
     apr = gets.chomp
-    if valid_integer?(apr) && apr.to_i > 0
+    if valid_integer?(apr) || valid_float?(apr) && apr.to_f > 0.0
       monthly_interest_rate = (apr.to_f / 100) / 12
       break
-    elsif apr.to_i <= 0
-      prompt('APR needs to be a valid number, and can not be 0 or less. Please try again: ')
+    elsif apr.to_f <= 0.0
+      prompt(MESSAGES['apr_error'])
     end
   end
 
   duration = nil
   duration_in_months = nil
   loop do
-    prompt('Please enter the loan duration in years: ')
+    prompt(MESSAGES['duration_input'])
     duration = gets.chomp
-    if valid_integer?(duration) && duration.to_i > 0
+    if valid_integer?(duration) || valid_float?(duration) && duration.to_i > 0
       duration_in_months = duration.to_i * 12
       break
     elsif duration.to_i <= 0
-      prompt('Duration needs to be a valid number, and can not be 0 years or less. Please try again: ')
+      prompt(MESSAGES['duration_error'])
     end
   end
 
-
   monthly_payment = amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(- duration_in_months)))
 
-  monthly_payment = 
+  monthly_payment =
     monthly_payment.round(2)
 
-  puts "Your monthly payment is $#{monthly_payment}"
+  # To handle the zero division resulting in NaN
+  if monthly_payment <= 0
+    prompt(MESSAGES['could_not_calculate'])
 
-  prompt('Do you want to make another loan calculation? (Y to confirm)')
+  else
+    prompt(MESSAGES['result'] + "#{monthly_payment}")
+  end
+
+  prompt(MESSAGES['calculate_again?'])
   answer = gets.chomp
   unless answer.downcase.start_with?('y')
-    prompt('Thanks for using calculator. Good bye!')
+    prompt(MESSAGES['goodbye'])
     break
   end
 end
-
