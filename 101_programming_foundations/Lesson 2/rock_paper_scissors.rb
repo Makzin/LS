@@ -1,48 +1,105 @@
-VALID_CHOICES = ['rock', 'paper', 'scissors']
+require 'yaml'
 
-def win?(first, second)
-  (first == 'rock' && second == 'scissors') ||
-    (first == 'paper' && second == 'rock') ||
-    (first == 'scissors' && second == 'paper')
-end
+MESSAGES = YAML.load_file('rock_paper_scissors_messages.yml')
 
-def display_results(player, computer)
-  if win?(player, computer)
-    prompt('You won!')
-  elsif win?(computer, player)
-    prompt('Computer won!')
-  else
-    prompt("It's a tie!")
-  end
+VALID_CHOICES = ['rock', 'paper', 'scissors', 'Spock', 'lizard']
+
+WINNING_CONDITIONS = {
+  rock: ['scissors', 'lizard'],
+  paper: ['rock', 'Spock'],
+  scissors: ['lizard', 'paper'],
+  lizard: ['Spock', 'paper'],
+  Spock: ['rock', 'scissors']
+}
+
+def win?(section, first, second)
+  section[first.to_sym].include?(second)
 end
 
 def prompt(message)
-  Kernel.puts("=> #{message}")
+  puts("=> #{message}")
 end
 
+def display_results(hash, player, computer)
+  if win?(hash, player, computer)
+    prompt(MESSAGES['player_win'])
+  elsif win?(hash, computer, player)
+    prompt(MESSAGES['computer_win'])
+  else
+    prompt(MESSAGES['tie'])
+  end
+end
+
+player_total_score = 0
+computer_total_score = 0
+
 loop do
+  prompt(MESSAGES['welcome'])
   choice = ''
+  s_word_choice = ''
 
   loop do
-    prompt("Choose one: #{VALID_CHOICES.join(', ')}")
-    choice = Kernel.gets().chomp()
+    loop do
+      prompt("Choose one: #{VALID_CHOICES.join(', ')}")
+      choice = gets().chomp().downcase()
+      case choice
+      when 'p'
+        choice = 'paper'
+      when 'r'
+        choice = 'rock'
+      when 'l'
+        choice = 'lizard'
+      when 's'
+        loop do
+          prompt(MESSAGES['scissors_or_spock'])
+          s_word_choice = gets().chomp().downcase()
+          if s_word_choice == 'scissors'
+            choice = 'scissors'
+            break
+          elsif s_word_choice == 'spock'
+            choice = 'Spock'
+            break
+          else
+            prompt(MESSAGES['invalid_choice'])
+          end
+        end
+      end
 
-    if VALID_CHOICES.include?(choice)
-      break
-    else
-      prompt("That's not a valid choice")
+      if VALID_CHOICES.include?(choice)
+        break
+      else
+        prompt(MESSAGES['invalid_choice'])
+      end
     end
+
+    computer_choice = VALID_CHOICES.sample
+
+    prompt("You chose #{choice}; Computer chose: #{computer_choice}.")
+
+    display_results(WINNING_CONDITIONS, choice, computer_choice)
+
+    if win?(WINNING_CONDITIONS, choice, computer_choice)
+      player_total_score += 1
+    elsif win?(WINNING_CONDITIONS, computer_choice, choice)
+      computer_total_score += 1
+    end
+
+    prompt("Score is player: #{player_total_score},
+      computer: #{computer_total_score}")
+    if player_total_score == 5
+      prompt(MESSAGES['player_win_game'])
+      break
+    elsif computer_total_score == 5
+      prompt(MESSAGES['computer_win_game'])
+      break
+    end
+
+    prompt(MESSAGES['round_restart'])
+    sleep(2)
   end
-
-  computer_choice = VALID_CHOICES.sample
-
-  prompt("You chose #{choice}; Computer chose: #{computer_choice}.")
-
-  display_results(choice, computer_choice)
-
-  prompt('Do you want to play again?')
-  answer = Kernel.gets().chomp()
+  prompt(MESSAGES['play_again?'])
+  answer = gets().chomp()
   break unless answer.downcase().start_with?('y')
 end
 
-prompt('Thank you for playing. Good bye!')
+prompt(MESSAGES['goodbye'])
