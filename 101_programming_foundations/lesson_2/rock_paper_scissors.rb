@@ -33,8 +33,9 @@ end
 player_total_score = 0
 computer_total_score = 0
 
+prompt(MESSAGES['welcome'])
+
 loop do
-  prompt(MESSAGES['welcome'])
   choice = ''
   s_word_choice = ''
 
@@ -97,9 +98,19 @@ loop do
     prompt(MESSAGES['round_restart'])
     sleep(2)
   end
-  prompt(MESSAGES['play_again?'])
-  answer = gets().chomp()
-  break unless answer.downcase().start_with?('y')
+
+  loop do 
+    prompt(MESSAGES['play_again?'])
+    answer = gets().chomp()
+    refusal = %{nope no nah No Nope Nah}
+    if answer.include?(refusal)
+      break
+    elsif answer.downcase().start_with?('y')
+    else 
+      prompt((MESSAGES['invalid_choice']))
+    end 
+  end 
+  break
 end
 
 prompt(MESSAGES['goodbye'])
