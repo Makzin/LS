@@ -1,3 +1,4 @@
+require 'pry'
 require 'yaml'
 
 MESSAGES = YAML.load_file('rock_paper_scissors_messages.yml')
@@ -12,35 +13,43 @@ WINNING_CONDITIONS = {
   Spock: ['rock', 'scissors']
 }
 
-def win?(section, first, second)
-  section[first.to_sym].include?(second)
+def win?(first, second)
+  WINNING_CONDITIONS[first.to_sym].include?(second)
 end
 
 def prompt(message)
   puts("=> #{message}")
 end
 
-def display_results(hash, player, computer)
-  if win?(hash, player, computer)
+def display_results(player, computer)
+  if win?(player, computer)
     prompt(MESSAGES['player_win'])
-  elsif win?(hash, computer, player)
+  elsif win?(computer, player)
     prompt(MESSAGES['computer_win'])
   else
     prompt(MESSAGES['tie'])
   end
 end
 
+def clear_screen
+  system('clear') || system('cls')
+end
+
 player_total_score = 0
 computer_total_score = 0
-
-prompt(MESSAGES['welcome'])
 
 loop do
   choice = ''
   s_word_choice = ''
-
+  round_number = 1
+  prompt(MESSAGES['welcome'])
+  sleep(1)
+  prompt(MESSAGES['starting'])
+  sleep(1)
   loop do
+    clear_screen
     loop do
+      prompt("Round ##{round_number}:")
       prompt("Choose one: #{VALID_CHOICES.join(', ')}")
       choice = gets().chomp().downcase()
       case choice
@@ -50,14 +59,18 @@ loop do
         choice = 'rock'
       when 'l'
         choice = 'lizard'
+      when 'sp'
+        choice = 'Spock'
+      when 'sc'
+        choice = 'scissors'
       when 's'
         loop do
           prompt(MESSAGES['scissors_or_spock'])
           s_word_choice = gets().chomp().downcase()
-          if s_word_choice == 'scissors'
+          if s_word_choice.downcase == 'scissors'
             choice = 'scissors'
             break
-          elsif s_word_choice == 'spock'
+          elsif s_word_choice.downcase == 'spock'
             choice = 'Spock'
             break
           else
@@ -77,11 +90,11 @@ loop do
 
     prompt("You chose #{choice}; Computer chose: #{computer_choice}.")
 
-    display_results(WINNING_CONDITIONS, choice, computer_choice)
-
-    if win?(WINNING_CONDITIONS, choice, computer_choice)
+    display_results(choice, computer_choice)
+    round_number += 1
+    if win?(choice, computer_choice)
       player_total_score += 1
-    elsif win?(WINNING_CONDITIONS, computer_choice, choice)
+    elsif win?(computer_choice, choice)
       computer_total_score += 1
     end
 
@@ -95,22 +108,27 @@ loop do
       break
     end
 
+    sleep(1)
     prompt(MESSAGES['round_restart'])
     sleep(2)
   end
 
-  loop do 
+  answer = ''
+  refusal = []
+  loop do
     prompt(MESSAGES['play_again?'])
     answer = gets().chomp()
-    refusal = %{nope no nah No Nope Nah}
-    if answer.include?(refusal)
+    refusal = ['nope', 'no', 'nah', 'No', 'Nope', 'Nah']
+    if refusal.include?(answer)
       break
     elsif answer.downcase().start_with?('y')
-    else 
+      break
+    else
       prompt((MESSAGES['invalid_choice']))
-    end 
-  end 
-  break
+    end
+  end
+
+  break if refusal.include?(answer)
 end
 
 prompt(MESSAGES['goodbye'])
