@@ -11,3 +11,17 @@ hsh = {
 # The return value should look like this:
 
 # [["Red", "Green"], "MEDIUM", ["Red", "Green"], ["Orange"], "LARGE"]
+
+
+p (hsh.map do |_, value|
+  if value[:type] == 'fruit'
+    value[:colors].map {|element| element.capitalize}
+  else
+    value[:size].upcase
+  end 
+end)
+
+
+
+
+
