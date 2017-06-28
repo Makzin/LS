@@ -12,12 +12,6 @@ def real_palindrome?(input)
 
   filtered_string = cleaned_input_array.join
 
-  #debugging for the '123ab321' input, which is returning true when calling the method on it. 
-  if input == '123ab321'
-    p filtered_string.downcase 
-    p filtered_string.downcase.reverse
-  end 
-
   filtered_string.downcase.reverse == filtered_string.downcase
 end 
 
@@ -29,6 +23,20 @@ p real_palindrome?('356653') == true
 p real_palindrome?('356a653') == true
 p real_palindrome?('123ab321') == false
 
-# Problem statement: 
-#output from this code is 'true' on all cases, even the last one. When debugging the '123ab321' it's clear that this produces 2 different strings, but somehow the code returns 'true' on it. 
 
+
+def palindrome?(word)
+  word == word.reverse
+end 
+
+def actually_palindrome?(input)
+  string = input.downcase.delete('^a-z0-9')
+  palindrome?(string)
+end 
+
+p actually_palindrome?('madam') == true
+p actually_palindrome?('Madam') == true           # (case does not matter)
+p actually_palindrome?("Madam, I'm Adam") == true # (only alphanumerics matter)
+p actually_palindrome?('356653') == true
+p actually_palindrome?('356a653') == true
+p actually_palindrome?('123ab321') == false
