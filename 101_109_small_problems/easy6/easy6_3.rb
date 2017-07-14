@@ -4,11 +4,24 @@
 
 # Write a method that calculates and returns the index of the first Fibonacci number that has the number of digits specified as an argument. (The first Fibonacci number has index 1.)
 
+def find_fibonacci_index_by_length(number_of_digits)
+  previous_value = 0
+  counter = 1
+  results_array = [1,1]
+  loop do 
+    break if results_array[counter].to_s.length == number_of_digits
+    results_array << (results_array[counter] + results_array[counter-1])
+    counter += 1
+  end 
+  counter + 1
+end 
+
+
 # Examples:
 
-find_fibonacci_index_by_length(2) == 7
-find_fibonacci_index_by_length(10) == 45
-find_fibonacci_index_by_length(100) == 476
-find_fibonacci_index_by_length(1000) == 4782
-find_fibonacci_index_by_length(10000) == 47847
-You may assume that the argument is always greater than or equal to 2.
+p find_fibonacci_index_by_length(2) == 7
+p find_fibonacci_index_by_length(10) == 45
+p find_fibonacci_index_by_length(100) == 476
+p find_fibonacci_index_by_length(1000) == 4782
+p find_fibonacci_index_by_length(10000) == 47847
+# You may assume that the argument is always greater than or equal to 2.
