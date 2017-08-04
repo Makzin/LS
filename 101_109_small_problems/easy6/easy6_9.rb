@@ -2,14 +2,13 @@
 
 
 def include?(array, search_param)
-  result = array.map do |element|
-    if !element == search_param
-      false
-    else
-      true
+  result = false
+  array.map do |element|
+    if element == search_param
+      result = true
     end 
   end 
-  p result
+  result
 end
 
 p include?([1,2,3,4,5], 3) == true
