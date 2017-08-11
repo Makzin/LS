@@ -1,4 +1,5 @@
 class MyCar
+
   attr_accessor :color
   attr_reader :year
 
@@ -33,6 +34,14 @@ class MyCar
     puts "Your car is now #{self.color}"
   end
 
+  def self.calculate_mileage(gallons, miles)
+    puts "#{miles/ gallons} miles per gallon of gas"
+  end
+
+  def to_s
+    "My car is a #{color} #{year} #{@model}"
+  end
+
 end
 
 toyota = MyCar.new(2005, 'Blue', 'Matrix')
@@ -43,3 +52,5 @@ toyota.shut_off
 puts toyota.color
 puts toyota.year
 toyota.spray_paint('red')
+puts MyCar.calculate_mileage(13, 351)
+puts toyota
