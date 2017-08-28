@@ -3,7 +3,7 @@ def prompt(input)
   puts "==>#{input}"
 end
 
-# rubocop: disable Metrics/MethodLength, metrics/Abcsize
+# rubocop: disable Metrics/MethodLength,Metrics/AbcSize
 def display_board(brd, play_score, comp_score, current_player)
   system 'clear'
   puts "You're #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}"
@@ -26,7 +26,7 @@ def display_board(brd, play_score, comp_score, current_player)
   puts "    #{current_player}'s turn!    "
   puts "-------------------------"
 end
-# rubocop: enable Metrics/MethodLength, metrics/Abcsize
+# rubocop: enable Metrics/MethodLength, Metrics/AbcSize
 
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
@@ -83,14 +83,8 @@ def computer_places_piece!(brd)
     WINNING_LINES.each do |line|
       square = detect_best_next_square(line, brd, COMPUTER_MARKER)
       break if square
-    end
-    if !square
-      WINNING_LINES.each do |line|
-        square = detect_best_next_square(line, brd, PLAYER_MARKER)
-        break if square
-      end
-    end
-    if !square
+      square = detect_best_next_square(line, brd, PLAYER_MARKER)
+      break if square
       square = empty_squares(brd).sample
     end
   end
@@ -139,14 +133,18 @@ loop do
     current_player = FIRST_TURN.sample
     board = initialize_board
     if current_player == 'Choose'
-      prompt "Please choose who should go first (Player or Computer)."
-      answer = gets.chomp
-      if answer.downcase.start_with?('p')
-        current_player = 'Player'
-      elsif answer.downcase.start_with?('c')
-        current_player = 'Computer'
-      else
-        prompt "I'm sorry, that is not a valid choice. Try again"
+      loop do
+        prompt "Please choose who should go first (Player or Computer)."
+        answer = gets.chomp
+        if answer.downcase.start_with?('p')
+          current_player = 'Player'
+          break
+        elsif answer.downcase.start_with?('c')
+          current_player = 'Computer'
+          break
+        else
+          prompt "I'm sorry, that is not a valid choice. Try again"
+        end
       end
     end
     loop do
