@@ -1,4 +1,4 @@
-
+require 'pry'
 def prompt(input)
   puts "==>#{input}"
 end
@@ -8,6 +8,7 @@ def display_board(brd, play_score, comp_score, current_player)
   system 'clear'
   puts "You're #{PLAYER_MARKER}. Computer is #{COMPUTER_MARKER}"
   puts "Player score is #{play_score}, Computer score is #{comp_score}"
+  puts "5 points required to win!"
   puts ""
   puts "      |       |"
   puts "  #{brd[1]}   |   #{brd[2]}   |   #{brd[3]}   "
@@ -126,13 +127,26 @@ def detect_winner(brd)
   nil
 end
 
+def new_game?(board)
+  prompt "#{detect_winner(board)} is the winner of the game!"
+  answer = ''
+  loop do
+    prompt "Play again? (y or n)"
+    answer = gets.chomp
+    if answer =~ /[A-Za-z]/
+      break
+    else
+      puts "Invalid response, please try again"
+    end
+  end
+  answer.downcase.start_with?('y')
+end
+
 loop do
+  current_player = FIRST_TURN.sample
   computer_score = 0
   player_score = 0
-  loop do
-    current_player = FIRST_TURN.sample
-    board = initialize_board
-    if current_player == 'Choose'
+  if current_player == 'Choose'
       loop do
         prompt "Please choose who should go first (Player or Computer)."
         answer = gets.chomp
@@ -147,6 +161,8 @@ loop do
         end
       end
     end
+  loop do
+    board = initialize_board
     loop do
       display_board(board, player_score, computer_score, current_player)
       if current_player == 'Computer'
@@ -172,10 +188,9 @@ loop do
     end
 
     if computer_score == 5 || player_score == 5
-      prompt "#{detect_winner(board)} is the winner of the game!"
-      prompt "Play again? (y or n)"
-      answer = gets.chomp
-      break unless answer.downcase.start_with?('y')
+      computer_score = 0
+      player_score = 0
+      break if !new_game?(board)
     end
   end
   break
