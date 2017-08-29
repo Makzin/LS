@@ -147,20 +147,20 @@ loop do
   computer_score = 0
   player_score = 0
   if current_player == 'Choose'
-      loop do
-        prompt "Please choose who should go first (Player or Computer)."
-        answer = gets.chomp
-        if answer.downcase.start_with?('p')
-          current_player = 'Player'
-          break
-        elsif answer.downcase.start_with?('c')
-          current_player = 'Computer'
-          break
-        else
-          prompt "I'm sorry, that is not a valid choice. Try again"
-        end
+    loop do
+      prompt "Please choose who should go first (Player or Computer)."
+      answer = gets.chomp
+      if answer.downcase.start_with?('p')
+        current_player = 'Player'
+        break
+      elsif answer.downcase.start_with?('c')
+        current_player = 'Computer'
+        break
+      else
+        prompt "I'm sorry, that is not a valid choice. Try again"
       end
     end
+  end
   loop do
     board = initialize_board
     loop do
