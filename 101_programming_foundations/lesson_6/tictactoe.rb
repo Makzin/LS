@@ -1,4 +1,4 @@
-require 'pry'
+
 def prompt(input)
   puts "==>#{input}"
 end
