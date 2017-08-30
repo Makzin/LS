@@ -1,32 +1,15 @@
-# 1. Initialize deck
-# 2. Deal cards to player and dealer
-# 3. Player turn: hit or stay
-#   - repeat until bust or "stay"
-# 4. If player bust, dealer wins.
-# 5. Dealer turn: hit or stay
-#   - repeat until total >= 17
-# 6. If dealer bust, player wins.
-# 7. Compare cards and declare winner.
-
-  # 52 cards
-  # hearts, spades, diamonds, clubs
-  # 2 - 10
-  # king, queen, jack (10 points each)
-  # ace (1 or 11)
-
-require 'pry'
+ require 'pry'
 
 def prompt(input)
   puts "==>#{input}"
 end
 
 def initialize_deck
-  hearts = [2,3,4,5,6,7,8,9,10,'king', 'queen', 'jack', 'ace']
-  spades = [2,3,4,5,6,7,8,9,10,'king', 'queen', 'jack', 'ace']
-  diamonds = [2,3,4,5,6,7,8,9,10,'king', 'queen', 'jack', 'ace']
-  clubs = [2,3,4,5,6,7,8,9,10,'king', 'queen', 'jack', 'ace']
+  hearts = [2,3,4,5,6,7,8,9,10,'King', 'Queen', 'Jack', 'Ace']
+  spades = [2,3,4,5,6,7,8,9,10,'King', 'Queen', 'Jack', 'Ace']
+  diamonds = [2,3,4,5,6,7,8,9,10,'King', 'Queen', 'Jack', 'Ace']
+  clubs = [2,3,4,5,6,7,8,9,10,'King', 'Queen', 'Jack', 'Ace']
   deck = [hearts, spades, diamonds, clubs]
-
 end
 
 def deal_card(deck)
@@ -36,18 +19,26 @@ def deal_card(deck)
   card
 end
 
+def present_cards(array, delimiter=', ', word = 'and' )
+  case array.size
+  when 2 then array.join(" #{word} ")
+  else
+    array.join(delimiter)
+  end
+end
+
 def calculate_hand_value(hand)
   filtered_hand = hand.map do |card|
-    if ['king','queen','jack'].include?(card)
+    if ['King','Queen','Jack'].include?(card)
       card = 10
-    elsif card == 'ace'
+    elsif card == 'Ace'
       card = 11
     end
     card
   end
   total_value = filtered_hand.reduce(:+)
-  if total_value > 21 && hand.include?('ace')
-    hand[hand.index('ace')] = 1
+  if total_value > 21 && hand.include?('Ace')
+    hand[hand.index('Ace')] = 1
   end
     total_value = filtered_hand.reduce(:+)
 end
@@ -60,17 +51,11 @@ def someone_won?(current_player_hand)
   calculate_hand_value(current_player_hand) == 21
 end
 
-def alternate_player(current_player)
-  if current_player == 'player'
-    current_player = 'dealer'
-  else
-    current_player = 'player'
-  end
-end
-
 def hit(deck, current_player_hand)
-  current_player_hand << deal_card(deck)
-  p current_player_hand
+  card_drawn = deal_card(deck)
+  puts "#{card_drawn} is drawn."
+  current_player_hand << card_drawn
+  sleep(1)
 end
 
 def compare_hands(player_hand, dealer_hand)
@@ -85,24 +70,31 @@ end
 
 def hit_or_stay?(deck, current_player_hand, current_player)
   loop do
-    puts "Cards are: #{current_player_hand}"
     if current_player == 'Dealer'
-      if calculate_hand_value(current_player_hand) < 21
+      if (21 - calculate_hand_value(current_player_hand)) > 4
+        system 'clear'
+        puts "Dealer has #{present_cards(current_player_hand)}"
+        puts "Current total of #{current_player}'s hand is #{calculate_hand_value(current_player_hand)}"
+        sleep(1)
         puts "Dealer choosing to hit"
-        sleep(2)
+        sleep(1)
         hit(deck, current_player_hand)
         break if someone_won?(current_player_hand)
         break if someone_loses?(current_player_hand)
       else
+        puts "Dealer has #{present_cards(current_player_hand)}"
         puts 'Dealer chooses to stay'
           dealer_hand = current_player_hand
         break
       end
     else
+      puts "Current total of #{current_player}'s hand is #{calculate_hand_value(current_player_hand)}"
       prompt "Would you like to hit or stay?"
       answer = gets.chomp
       if answer == 'hit'
         hit(deck, current_player_hand)
+        system 'clear'
+        puts "You have: #{present_cards(current_player_hand)}"
         break if someone_won?(current_player_hand)
         break if someone_loses?(current_player_hand)
       elsif answer != 'stay'
@@ -116,7 +108,6 @@ def hit_or_stay?(deck, current_player_hand, current_player)
 end
 
 
-
 #main game logic
 loop do
   deck = initialize_deck
@@ -126,8 +117,18 @@ loop do
 
     current_player = 'Player'
     player_hand = []
-    2.times {player_hand << deal_card(deck)}
+    dealer_hand = []
 
+    2.times {player_hand << deal_card(deck)}
+    2.times {dealer_hand << deal_card(deck)}
+    puts "You have: #{present_cards(player_hand)}"
+    puts "Dealer has: #{dealer_hand[0]} and an unknown card"
+    puts ""
+    puts ""
+    if calculate_hand_value(player_hand) == 21
+      puts "Player wins!"
+      break
+    end
     hit_or_stay?(deck, player_hand, current_player)
     if someone_loses?(player_hand)
       puts "#{current_player} loses!"
@@ -138,10 +139,9 @@ loop do
     end
 
     # computer turn
+    system 'clear'
     puts "Computer's turn!"
     current_player = 'Dealer'
-    dealer_hand = []
-    2.times {dealer_hand << deal_card(deck)}
     hit_or_stay?(deck, dealer_hand, current_player)
     if someone_loses?(dealer_hand)
       puts "#{current_player} loses!"
@@ -151,15 +151,18 @@ loop do
       break
     end
     winner = compare_hands(player_hand, dealer_hand)
-    puts "#{winner} wins the game!"
+    if winner == 'Tie'
+      puts "It's a tie!"
+    else
+      puts "#{winner} wins the game!"
+      sleep(2)
     break
   end
+end
 
-  puts 'Want to play again? (y or n)'
+  puts 'Want to play again? (Y or N)'
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
 end
 
 puts "Thanks for playing Twenty-One! Goodbye!"
-
-
