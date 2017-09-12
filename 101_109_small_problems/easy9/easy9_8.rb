@@ -4,7 +4,29 @@
 
 # Examples:
 
-sequence(5, 1) == [1, 2, 3, 4, 5]
-sequence(4, -7) == [-7, -14, -21, -28]
-sequence(3, 0) == [0, 0, 0]
-sequence(0, 1000000) == []
+def sequence(count, value)
+  new_array = []
+  incrementor = 0
+  int_value = value
+  while incrementor < count
+    new_array << int_value
+    int_value += value
+    incrementor += 1
+  end
+  new_array
+end
+
+p sequence(5, 1) == [1, 2, 3, 4, 5]
+p sequence(4, -7) == [-7, -14, -21, -28]
+p sequence(3, 0) == [0, 0, 0]
+p sequence(0, 1000000) == []
+
+
+def sequence2(count, value)
+  (1..count).map { |index| index * value }
+end
+
+p sequence2(5, 1) == [1, 2, 3, 4, 5]
+p sequence2(4, -7) == [-7, -14, -21, -28]
+p sequence2(3, 0) == [0, 0, 0]
+p sequence2(0, 1000000) == []
