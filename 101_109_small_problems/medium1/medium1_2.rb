@@ -7,7 +7,10 @@ end
 
 
 def rotate_rightmost_digits(number, count)
-  p new_array = number.to_s[(number.to_s.length-count)..-1].to_a
+  sub_array = number.to_s[(number.to_s.length-count)..-1].split('')
+  trimmed_number = number.to_s.delete(number.to_s[(number.to_s.length-count..-1)])
+  rotated_sub_array = rotate_array(sub_array)
+  trimmed_number.to_s.split('').concat(rotated_sub_array).join.to_i
 end
 
 
@@ -22,4 +25,12 @@ p rotate_rightmost_digits(735291, 6) == 352917
 # You may use the rotate_array method from the previous exercise if you want. (Recommended!)
 
 # You may assume that n is always a positive integer.
+
+def rotate_rightmost_digits2(number, count)
+  all_digits = number.to_s.chars
+  all_digits[-count..-1] = rotate_array(all_digits[-count..-1])
+  all_digits.join.to_i
+end
+
+p rotate_rightmost_digits2(735291, 4) == 732915
 
