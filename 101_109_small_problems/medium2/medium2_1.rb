@@ -44,9 +44,21 @@
 
 
 def longest_sentence(text)
-  sentence_array = text.split('.')
-  p sentence_array
+  sentence_array = text.split(/\.|\?|!/)
+  longest_sentence = ''
+  sentence_array.each do |sentence|
+    sentence.gsub!("\n", " ")
+    sentence.gsub!("\r", "")
+    if longest_sentence.size < sentence.size
+      longest_sentence = sentence
+    end
+  end
+  puts "The longest sentence is '#{longest_sentence}'."
+  puts "This sentence is #{longest_sentence.split(' ').size} words long."
 end
+
+book = File.read('pg84.txt')
+p longest_sentence(book)
 
 words =
 'Four score and seven years ago our fathers brought forth
@@ -79,8 +91,7 @@ resolve that these dead shall not have died in vain
 -- that this nation, under God, shall have a new birth
 of freedom -- and that government of the people, by
 the people, for the people, shall not perish from the
-earth.
-The longest sentence in the above text is the last sentence; it is 86 words long.'
+earth.'
 
 
-longest_sentence(words)
+# longest_sentence(words)
