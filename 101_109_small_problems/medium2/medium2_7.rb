@@ -7,35 +7,20 @@
 #check how many of those match friday and 13th
 
 require 'pry'
-
-DAYS_OF_WEEK = [
-  'Saturday',
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday'
-]
-
+require 'date'
 
 def friday_13th(year)
-  day_hash = {}
-  days_to_map = ((year - 1752) * 365).to_a
-  days_to_map.each do |day|
-
-
-
+  start = Date.new(year, 01, 01)
+  finish = Date.new(year, 12, 31)
+  friday_count = 0
+  (start..finish).each do |date|
+    date.friday? && date.mday == 13 ? friday_count += 1 : nil
   end
-
-
-
+  friday_count
 end
-
-
 
 # Examples:
 
-friday_13th(2015) == 3
-friday_13th(1986) == 1
-friday_13th(2019) == 2
+p friday_13th(2015) == 3
+p friday_13th(1986) == 1
+p friday_13th(2019) == 2
