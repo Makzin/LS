@@ -46,29 +46,26 @@ def set_up_table(deck, player_hand, dealer_hand)
 end
 
 def filter_ace(hand)
-  hand_without_ace = hand.map do |card|
-    if [11].include?(card)
-      card = 1
-    end
-    card
-  end
-  hand_without_ace.inject(:+)
+  first_ace_index = hand.index(hand.find { |card| card == 11 })
+  hand[first_ace_index] = 1
+  hand
 end
 
 def calculate_hand_value(hand)
   hand_value = hand.map do |card|
-    if ['King', 'Queen', 'Jack'].include?(card)
-      card = 10
-    elsif ['Ace'].include?(card)
-      card = 11
-    end
+    ['King', 'Queen', 'Jack'].include?(card) ? card = 10 : nil
+    ['Ace'].include?(card) ? card = 11 : nil
     card
   end
-  if hand_value.inject(:+) > WINNING_NUMBER && hand_value.include?(11)
-    filter_ace(hand_value)
-  else
-    hand_value.inject(:+)
+  loop do
+    if hand_value.inject(:+) > WINNING_NUMBER && hand_value.include?(11)
+      hand_value = filter_ace(hand_value)
+    else
+      hand_value = hand_value.inject(:+)
+      break
+    end
   end
+  hand_value
 end
 
 def hit(deck, current_hand)
@@ -97,12 +94,20 @@ def compare_hands(player_round_score, dealer_round_score)
   end
 end
 
+def show_hand(actor, hand, round_score)
+  puts MESSAGES['blank_line']
+  if actor != 'Player'
+    puts "#{actor} has "\
+      "#{present_cards(hand)}"
+  end
+  puts "Current total of #{actor}'s hand is "\
+        "#{round_score}"
+end
+
 def dealer_hit_or_stay?(deck, dealer_hand)
   dealer_round_score = calculate_hand_value(dealer_hand)
-  puts MESSAGES['blank_line']
-  puts "Current total of Dealer's hand is "\
-        "#{dealer_round_score}"
-  if dealer_round_score <= TRIGGER_NUMBER
+  show_hand('Dealer', dealer_hand, dealer_round_score)
+  if dealer_round_score < TRIGGER_NUMBER
     puts MESSAGES['dealer_hit']
     hit(deck, dealer_hand)
   else
@@ -113,9 +118,7 @@ end
 
 def player_hit_or_stay?(deck, player_hand)
   player_round_score = calculate_hand_value(player_hand)
-  puts MESSAGES['blank_line']
-  puts "Current total of Player's hand is "\
-        "#{player_round_score}"
+  show_hand('Player', player_hand, player_round_score)
   prompt MESSAGES['hit_or_stay']
   answer = gets.chomp
   if ['h', 'H', 'hit'].include?(answer.downcase)
@@ -168,7 +171,6 @@ loop do
   puts "Dealer's game score is #{dealer_game_score}."
   puts MESSAGES['blank_line']
   set_up_table(deck, player_hand, dealer_hand)
-
   loop do
     loop do
       player_round_score = calculate_hand_value(player_hand)
@@ -228,6 +230,11 @@ loop do
     elsif answer.downcase.start_with?('y')
       next
     end
+  end
+
+  puts MESSAGES['press_return']
+  answer = gets.chomp.downcase
+  if answer == "\n"
   end
 end
 
