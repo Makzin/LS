@@ -1,4 +1,5 @@
 require 'yaml'
+require 'pry'
 
 MESSAGES = YAML.load_file('twenty_one.yml')
 WINNING_NUMBER = 21
@@ -45,27 +46,33 @@ def set_up_table(deck, player_hand, dealer_hand)
   puts "-------------------------------------------------"
 end
 
-def filter_ace(hand)
-  first_ace_index = hand.index(hand.find { |card| card == 11 })
-  hand[first_ace_index] = 1
-  hand
+def calculate_hand_value(hand)
+  total = calculate_total(hand)
+  correct_for_aces(hand, total)
 end
 
-def calculate_hand_value(hand)
-  hand_value = hand.map do |card|
-    ['King', 'Queen', 'Jack'].include?(card) ? card = 10 : nil
-    ['Ace'].include?(card) ? card = 11 : nil
-    card
+def calculate_total(hand)
+  total = 0
+  hand.each do |card|
+    total += case card
+             when 'Ace'
+               then 11
+             when 'King', 'Queen', 'Jack'
+              then 10
+             else
+               card.to_i
+             end
   end
-  loop do
-    if hand_value.inject(:+) > WINNING_NUMBER && hand_value.include?(11)
-      hand_value = filter_ace(hand_value)
-    else
-      hand_value = hand_value.inject(:+)
-      break
-    end
+  total
+end
+
+def correct_for_aces(hand, total)
+  number_of_aces = hand.count('Ace')
+  while total > WINNING_NUMBER && number_of_aces > 0
+    total -= 10
+    number_of_aces -= 1
   end
-  hand_value
+  total
 end
 
 def hit(deck, current_hand)
@@ -104,30 +111,33 @@ def show_hand(actor, hand, round_score)
         "#{round_score}"
 end
 
-def dealer_hit_or_stay?(deck, dealer_hand)
-  dealer_round_score = calculate_hand_value(dealer_hand)
-  show_hand('Dealer', dealer_hand, dealer_round_score)
-  if dealer_round_score < TRIGGER_NUMBER
+def dealer_hit_or_stay(deck, dealer_hand, round_score)
+  if round_score < TRIGGER_NUMBER
     puts MESSAGES['dealer_hit']
     hit(deck, dealer_hand)
+    dealer_hand
   else
     puts "Dealer chooses to stay"
     'stay'
   end
 end
 
-def player_hit_or_stay?(deck, player_hand)
-  player_round_score = calculate_hand_value(player_hand)
-  show_hand('Player', player_hand, player_round_score)
-  prompt MESSAGES['hit_or_stay']
-  answer = gets.chomp
-  if ['h', 'H', 'hit'].include?(answer.downcase)
-    hit(deck, player_hand)
-  elsif ['s', 'S', 'stay'].include?(answer.downcase)
-    'stay'
-  else
-    puts MESSAGES['invalid_answer']
+def player_hit_or_stay(deck, player_hand)
+  outcome = nil
+  loop do
+    prompt MESSAGES['hit_or_stay']
+    answer = gets.chomp
+    if ['h', 'H', 'hit'].include?(answer.downcase)
+      outcome = hit(deck, player_hand)
+      break
+    elsif ['s', 'S', 'stay'].include?(answer.downcase)
+      outcome = 'stay'
+      break
+    else
+      puts MESSAGES['invalid_answer']
+    end
   end
+  outcome
 end
 
 def display_losing_message(current_player, total_score)
@@ -156,6 +166,44 @@ def declare_game_winner(player_game_score)
   end
 end
 
+def player_turn(deck, player_hand)
+  player_round_score = nil
+  loop do
+    player_round_score = calculate_hand_value(player_hand)
+    show_hand('Player', player_hand, player_round_score)
+    player_decision = player_hit_or_stay(deck, player_hand)
+    if player_decision == 'stay'
+      break
+    elsif bust?(calculate_hand_value(player_decision))
+      break
+    end
+  end
+  calculate_hand_value(player_hand)
+end
+
+def dealer_turn(deck, dealer_hand)
+  dealer_round_score = nil
+  loop do
+    dealer_round_score = calculate_hand_value(dealer_hand)
+    show_hand('Dealer', dealer_hand, dealer_round_score)
+    dealer_decision = dealer_hit_or_stay(deck, dealer_hand, dealer_round_score)
+    if dealer_decision == 'stay'
+      break
+    elsif bust?(calculate_hand_value(dealer_decision))
+      break
+    end
+  end
+  calculate_hand_value(dealer_hand)
+end
+
+def increment_winner_score(winner, dealer_game_score, player_game_score)
+  if winner == 'Player'
+    player_game_score += 1
+  else
+    dealer_game_score += 1
+  end
+end
+
 player_game_score = 0
 dealer_game_score = 0
 
@@ -165,40 +213,30 @@ loop do
   deck = initialize_deck
   player_hand = []
   dealer_hand = []
-  player_round_score = nil
-  dealer_round_score = nil
+  player_round_score = 0
+  dealer_round_score = 0
   puts "Player's game score is #{player_game_score}."
   puts "Dealer's game score is #{dealer_game_score}."
   puts MESSAGES['blank_line']
   set_up_table(deck, player_hand, dealer_hand)
   loop do
-    loop do
-      player_round_score = calculate_hand_value(player_hand)
-      break if player_hit_or_stay?(deck, player_hand) == 'stay'
-      player_round_score = calculate_hand_value(player_hand)
-      if bust?(player_round_score)
-        display_losing_message('Player', player_round_score)
-        sleep(1)
-        dealer_game_score += 1
-        break
-      end
+    player_round_score = player_turn(deck, player_hand)
+    if bust?(player_round_score)
+      display_losing_message('Player', player_round_score)
+      sleep(1)
+      dealer_game_score =
+        increment_winner_score('Dealer', dealer_game_score, player_game_score)
+      break
     end
 
-    break if bust?(calculate_hand_value(player_hand))
-
-    loop do
-      dealer_round_score = calculate_hand_value(dealer_hand)
-      break if dealer_hit_or_stay?(deck, dealer_hand) == 'stay'
-      dealer_round_score = calculate_hand_value(dealer_hand)
-      if bust?(dealer_round_score)
-        display_losing_message('Dealer', dealer_round_score)
-        sleep(1)
-        player_game_score += 1
-        break
-      end
+    dealer_round_score = dealer_turn(deck, dealer_hand)
+    if bust?(dealer_round_score)
+      display_losing_message('Dealer', dealer_round_score)
+      sleep(1)
+      player_game_score =
+        increment_winner_score('Player', dealer_game_score, player_game_score)
+      break
     end
-
-    break if bust?(dealer_round_score)
 
     round_outcome = compare_hands(player_round_score, dealer_round_score)
     case round_outcome
@@ -233,9 +271,7 @@ loop do
   end
 
   puts MESSAGES['press_return']
-  answer = gets.chomp.downcase
-  if answer == "\n"
-  end
+  gets
 end
 
 puts MESSAGES['goodbye']
