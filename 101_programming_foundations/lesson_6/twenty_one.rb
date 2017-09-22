@@ -1,5 +1,4 @@
 require 'yaml'
-require 'pry'
 
 MESSAGES = YAML.load_file('twenty_one.yml')
 WINNING_NUMBER = 21
