@@ -56,9 +56,9 @@ def calculate_total(hand)
   hand.each do |card|
     total += case card
              when 'Ace'
-               then 11
+               11
              when 'King', 'Queen', 'Jack'
-              then 10
+               10
              else
                card.to_i
              end
@@ -77,10 +77,9 @@ end
 
 def hit(deck, current_hand)
   card = deal_card(deck)
-  sleep(1)
   puts "#{card} is drawn."
-  current_hand << card
   sleep(1)
+  current_hand << card
 end
 
 def compare_hands(player_round_score, dealer_round_score)
@@ -196,12 +195,8 @@ def dealer_turn(deck, dealer_hand)
   calculate_hand_value(dealer_hand)
 end
 
-def increment_winner_score(winner, dealer_game_score, player_game_score)
-  if winner == 'Player'
-    player_game_score += 1
-  else
-    dealer_game_score += 1
-  end
+def increment_winner_score(score)
+  score + 1
 end
 
 player_game_score = 0
@@ -224,8 +219,7 @@ loop do
     if bust?(player_round_score)
       display_losing_message('Player', player_round_score)
       sleep(1)
-      dealer_game_score =
-        increment_winner_score('Dealer', dealer_game_score, player_game_score)
+      dealer_game_score = increment_winner_score(dealer_game_score)
       break
     end
 
@@ -233,8 +227,7 @@ loop do
     if bust?(dealer_round_score)
       display_losing_message('Dealer', dealer_round_score)
       sleep(1)
-      player_game_score =
-        increment_winner_score('Player', dealer_game_score, player_game_score)
+      player_game_score = increment_winner_score(player_game_score)
       break
     end
 
